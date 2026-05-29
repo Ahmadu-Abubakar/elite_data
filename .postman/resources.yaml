@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: a96e5d50-439b-4736-8c99-90fe6691d091
+
+localResources:
+  docs:
+    - ..\elite_venv\Lib\site-packages\django\contrib\admin\static\admin\js\vendor\select2\LICENSE.md
