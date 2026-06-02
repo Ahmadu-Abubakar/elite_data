@@ -1,25 +1,51 @@
 from rest_framework import serializers
+from django.contrib.auth.password_validation import validate_password
+
 from .models import User, Profile
 
 
-class RegisterSerializers(serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model=User
-        fields = ["id", "username", "first_name", "last_name", "password", "email", "phone_number",]
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "password",
+            "phone_number",
+        ]
+
         extra_kwargs = {
             "password": {"write_only": True}
         }
 
+    def validate_email(self, value):
+        value = value.strip().lower()
+
+        if "admin" in value:
+            raise serializers.ValidationError(
+                "Email cannot contain admin."
+            )
+
+        return value
+
+    def validate_password(self, value):
+        validate_password(value)
+        return value
+
     def create(self, validated_data):
+
         user = User.objects.create_user(
             username=validated_data["username"],
+            email=validated_data["email"],
             password=validated_data["password"],
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data["last_name"],
-            phone_number=validated_data['phone_number'],
+            phone_number=validated_data["phone_number"],
+            is_active=False,
+        )
 
-           
+        Profile.objects.create(
+            user=user
         )
 
         return user
