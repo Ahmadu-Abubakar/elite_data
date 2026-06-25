@@ -46,8 +46,6 @@ REST_FRAMEWORK = {
     ]
 }
 
-AUTH_USER_MODEL = "accounts.User"
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -138,3 +136,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+# Tokens lifeSpan 
+ACCESS_TOKEN_LIFETIME_MINUTES = 10
+
+REFRESH_TOKEN_LIFETIME_DAYS = 30
+
+EMAIL_VERIFICATION_TOKEN_LIFETIME_HOURS = 24
+
+
+# Email Settings
+
+EMAIL_BACKEND = (
+    "django.core.mail.backends.console.EmailBackend"
+)
+
+DEFAULT_FROM_EMAIL = "noreply@elitedata.local"
+

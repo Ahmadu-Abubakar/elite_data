@@ -15,6 +15,8 @@ class User(AbstractUser):
         auto_now_add=True
     )
 
+    email_verified = models.BooleanField(default=False)
+
 
 
 class Profile(models.Model):
@@ -28,18 +30,3 @@ class Profile(models.Model):
         upload_to="profile_pics/", blank=True, null=True
     )
 
-
-class EmailVerificationToken(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name="email_verification"
-    )
-
-    token = models.CharField(max_length=255)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    expires_at = models.DateTimeField()
-
-    is_used = models.BooleanField(default=False)

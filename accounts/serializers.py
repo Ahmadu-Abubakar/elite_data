@@ -41,7 +41,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data["email"],
             password=validated_data["password"],
             phone_number=validated_data["phone_number"],
-            is_active=False,
         )
 
         Profile.objects.create(
@@ -49,3 +48,18 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         return user
+    
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(
+        write_only=True,
+        trim_whitespace=False
+    )
+
+
+class RefreshTokenSerializer(
+    serializers.Serializer
+):
+    refresh_token = serializers.CharField()
+
