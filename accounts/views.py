@@ -25,6 +25,7 @@ from .token_service import (
     InvalidTokenError
 )
 from rest_framework.views import APIView
+import jwt
 
 
 
@@ -74,13 +75,21 @@ def verify_email_view(request, token):
         )
     
     
-    except Exception as e:
+    except jwt.InvalidTokenError as e:
         return Response(
             {
                 "error" : str(e)
             },
-            status=status.HTTP_400_BAD_REQUEST
-        ) 
+            status=status.HTTP_410_GONE
+        )
+    except jwt.ExpiredSignatureError as e:
+        return Response ({
+            "message" : str(e)
+        }, status=status.HTTP_401_UNAUTHORIZED)
+    except User.DoesNotExist as e :
+        return Response ({
+            "message" : str(e)
+        }, status=status.HTTP_401_UNAUTHORIZED)
     
     
 

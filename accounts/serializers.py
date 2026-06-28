@@ -1,7 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-
 from .models import User, Profile
+
+from wallet.services import create_wallet, WalletAlreadyExistsError
+from django.db import transaction
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -36,19 +39,22 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        user = User.objects.create_user(
-            username=validated_data["username"],
-            email=validated_data["email"],
-            password=validated_data["password"],
-            phone_number=validated_data["phone_number"],
-        )
+       with transaction.atomic():
 
-        Profile.objects.create(
-            user=user
-        )
+            user = User.objects.create_user(
+                username=validated_data["username"],
+                email=validated_data["email"],
+                password=validated_data["password"],
+                phone_number=validated_data["phone_number"],
+            )
 
-        return user
-    
+            try:
+                create_wallet(user)
+            except WalletAlreadyExistsError as e:
+                return str(e)
+            return user
+
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
