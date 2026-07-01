@@ -60,6 +60,9 @@ INSTALLED_APPS = [
     'accounts',
     'wallet',
     'transactions',
+
+    # connection __________
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -70,6 +73,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # connection ______
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -90,6 +96,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
+
+# Allowed client
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 
 
 # Database
