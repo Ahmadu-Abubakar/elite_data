@@ -11,24 +11,36 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import environ
+
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env()
+# 2. Read the .env file from the BACKEND folder
+environ.Env.read_env(BASE_DIR / '.env')
+
+# 3. Use your variables
+SECRET_KEY = env('SECRET_KEY')
+PAYSTACK_SECRET_KEY = env("PAYSTACK_SECRET_KEY")
+
+DEBUG = env('DEBUG')
+DATABASE = env('DATABASES')
+
+
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-b6y957w=h=wg#i%o*@n@wol9-16m5m5w6plf-sx#))h1vh^fj*'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'accounts.User'
 
+ALLOWED_HOSTS = []
 
 # MEDIA SETTINGS
 MEDIA_URL = "/media/"
@@ -61,7 +73,7 @@ INSTALLED_APPS = [
     'wallet',
     'transactions',
 
-    # connection __________
+    # connection to frontend
     "corsheaders",
 ]
 
@@ -103,15 +115,6 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation
