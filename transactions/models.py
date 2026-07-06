@@ -46,7 +46,7 @@ class Transaction(models.Model):
     )
 
 
-    references = models.UUIDField(
+    reference = models.UUIDField(
         editable=False,
         default=uuid.uuid4,
         unique=True
@@ -57,6 +57,16 @@ class Transaction(models.Model):
         choices=TelecomProviders.choices,
         null=True,
         blank=True
+    )
+
+    provider_reference = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    payment_url = models.URLField(
+        blank=True,
+        null=True
     )
 
 

@@ -27,9 +27,17 @@ SECRET_KEY = env('SECRET_KEY')
 PAYSTACK_SECRET_KEY = env("PAYSTACK_SECRET_KEY")
 
 DEBUG = env('DEBUG')
-DATABASE = env('DATABASES')
+# DATABASE = env('DATABASES')
+DATABASES={
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
+# Default currency
+DEFAULT_CURRENCY = "NGN"
 
 
 # Quick-start development settings - unsuitable for production
