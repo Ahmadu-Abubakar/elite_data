@@ -52,7 +52,7 @@ class Transaction(models.Model):
         unique=True
     )
 
-    telecom_providers = models.CharField(
+    telecom_provider = models.CharField(
         max_length=50,
         choices=TelecomProviders.choices,
         null=True,
@@ -67,6 +67,10 @@ class Transaction(models.Model):
     payment_url = models.URLField(
         blank=True,
         null=True
+    )
+
+    description = models.CharField(
+        max_length=255
     )
 
 

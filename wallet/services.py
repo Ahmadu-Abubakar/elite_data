@@ -21,6 +21,15 @@ class InvalidDepositAmountError(WalletException):
     """negative deposit valueError"""
     pass
 
+class DepositAlreadyCompletedError(WalletException):
+    """Transaction status already succeeded"""
+    pass
+
+class DepositNotFound(WalletException):
+    """Transaction id not found"""
+    pass
+
+
 # creating wallet
 def create_wallet(user):
 
@@ -79,3 +88,36 @@ def deposit_money(user, amount):
 
 
         
+def complete_deposit(payment_transaction):
+    with transaction.atomic(): 
+        try: 
+            locked_transaction = (
+                Transaction.objects
+                .select_for_update()
+                .get(id=payment_transaction.id)
+            )
+
+            wallet = locked_transaction.wallet
+            
+            if locked_transaction.status == Transaction.Status.SUCCESS:
+                logger.warning(
+                    "completed transaction happen by %s",
+                    locked_transaction.wallet.user.id
+                )
+                raise DepositAlreadyCompletedError("Transaction succeed Error.")
+            
+            wallet.balance += locked_transaction.amount
+            
+            locked_transaction.status = Transaction.Status.SUCCESS
+
+            wallet.save()
+            locked_transaction.save()
+
+            return locked_transaction
+
+            
+        except Transaction.DoesNotExist:
+            raise DepositNotFound("Traction Not Found Error.")
+        
+
+
