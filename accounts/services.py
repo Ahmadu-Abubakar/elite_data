@@ -92,7 +92,6 @@ def login_user(email, password):
     access_token = generate_access_token(user)
     refresh_token = generate_refresh_token(user)
 
-
     return {
         "access_token" : access_token,
         "refresh_token"  : refresh_token,
@@ -102,4 +101,5 @@ def login_user(email, password):
             "username": user.username
         }
     }
+
 

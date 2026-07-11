@@ -26,6 +26,7 @@ from .token_service import (
 )
 from rest_framework.views import APIView
 import jwt
+from django.conf import settings
 
 
 
@@ -109,7 +110,7 @@ class LoginView(APIView):
 
 
         try:
-            token_data = login_user(
+            result = login_user(
                 email=serializer.validated_data["email"],
                 password=serializer.validated_data["password"]
             )
@@ -125,10 +126,25 @@ class LoginView(APIView):
             }, status=status.HTTP_403_FORBIDDEN)
         
 
-        return Response (
-            token_data, 
+        response =  Response (
+            {
+                "access_token" : result["access_token"],
+                "user" : result["user"]
+            },
             status=status.HTTP_200_OK
         )
+
+
+        response.set_cookie(
+            key="refresh_token",
+            value=result["refresh_token"],
+            httponly=True,
+            secure=settings.DEBUG,
+            samesite="lax",
+            max_age=settings.REFRESH_COOKIE_MAX_AGE,
+        )
+
+        return response
     
 
 
