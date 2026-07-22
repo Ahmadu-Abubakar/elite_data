@@ -19,12 +19,14 @@ from django.urls import path, include
 from accounts import urls
 from django.conf import settings
 from django.conf.urls.static import static
+from transactions import urls
 
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/accounts/', include("accounts.urls"))
+    path('api/accounts/', include("accounts.urls")),
+    path('api/', include('transactions.urls'))
 ]
 
 urlpatterns += static(

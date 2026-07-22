@@ -52,7 +52,7 @@ class Transaction(models.Model):
         unique=True
     )
 
-    telecom_provider = models.CharField(
+    telecom_providers = models.CharField(
         max_length=50,
         choices=TelecomProviders.choices,
         null=True,

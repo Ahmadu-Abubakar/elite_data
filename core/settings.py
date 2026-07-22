@@ -60,8 +60,13 @@ MEDIA_ROOT = BASE_DIR / "media"
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
+
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+
+        "accounts.authentication.JWTAuthentication"
+
+    ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
          'rest_framework.permissions.IsAuthenticated',
     ]
 }
@@ -122,7 +127,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
-
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Password validation
@@ -163,12 +168,12 @@ STATIC_URL = 'static/'
 
 
 # Tokens lifeSpan 
-ACCESS_TOKEN_LIFETIME_MINUTES = 10
+ACCESS_TOKEN_LIFETIME_MINUTES = 15
 
-REFRESH_TOKEN_LIFETIME_DAYS = 7
+REFRESH_TOKEN_LIFETIME_DAYS = 30
 
 EMAIL_VERIFICATION_TOKEN_LIFETIME_HOURS = 24
-REFRESH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
+REFRESH_COOKIE_MAX_AGE = 60 * 60 * 24 * 30
 
 # Email Settings
 

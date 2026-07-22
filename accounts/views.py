@@ -97,6 +97,7 @@ def verify_email_view(request, token):
 
 # login view___________
 class LoginView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
 
@@ -149,6 +150,7 @@ class LoginView(APIView):
 
 
 class RefreshTokenView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
     def post(self, request):
         serializer = RefreshTokenSerializer(data=request.data)
