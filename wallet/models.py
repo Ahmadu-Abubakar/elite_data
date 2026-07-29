@@ -14,6 +14,29 @@ class Wallet(models.Model):
         decimal_places=2,
         default=Decimal("0.00")
     )
+
+# Virtual account credentials
+    account_number = models.CharField(
+        max_length=10,
+        unique=True,
+        null=True,
+    )
+
+    account_name = models.CharField(
+        max_length=100,
+        null=True
+    )
+
+    bank_name = models.CharField(
+        max_length=100,
+        null=True
+    )
+
+    provider_reference = models.CharField(
+        max_length=100,
+        null=True
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True
     )

@@ -1,9 +1,10 @@
 from .models import Wallet
 import logging
 from django.db import transaction
-from transactions.models import Transaction
-from payments.providers.paystack import initialize_payment
 import logging
+from payments.fake_bank import FakeBankProvider
+from wallet.models import Wallet
+from transactions.models import Transaction
 
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,11 @@ class DepositNotFound(WalletException):
     """Transaction id not found"""
     pass
 
+class VirtualAccountError(WalletException):
+    """Account Not Found!"""
+    pass
+
+
 
 # creating wallet
 def create_wallet(user):
@@ -41,8 +47,15 @@ def create_wallet(user):
         raise WalletAlreadyExistsError("wallet already exists!")
     
     
+    account = FakeBankProvider.create_virtual_account(user)
+
     wallet = Wallet.objects.create(
-        user=user
+        user=user,
+        account_number=account["account_number"],
+        account_name=account["account_name"],
+        bank_name=account["bank_name"],
+        provider_reference=account["provider_reference"],
+
     )
 
     logger.info(
@@ -52,72 +65,71 @@ def create_wallet(user):
 
     return wallet
 
-# depositing process one 
-def deposit_money(user, amount):
 
-    if amount <= 0:
-        logger.critical(
-            "Negative Deposit issue %s",
-            user.id
-        )
-        raise InvalidDepositAmountError(
-            "Deposit amount must be greater than zero."
-        )
-    
 
-    wallet=user.wallet
+def handle_deposit_webhook(payload):
+    return record_processed_deposit(payload)
+
+def validate_deposit(payload):
+
+    # wallet lookup 
+    try :
+        wallet = Wallet.objects.get(
+            account_number=payload["account_number"]
+        )
+    except Wallet.DoesNotExist:
+        raise VirtualAccountError("Invalid user account")
+
     
+    found_provider = Transaction.objects.filter(
+        provider_reference=payload["provider_reference"]
+    ).exists()
+
+
+    if payload["amount"] <= 0:
+        raise InvalidDepositAmountError("Invalid Balance!.")
+
+
+    if found_provider:
+        raise VirtualAccountError("Transaction has been made successfully!!. ")
+
+    if payload['status'].lower() != "success":
+        raise VirtualAccountError("Invalid Deposit Error !.")
+
+
+    return (wallet, payload)
+
+
+
+def credit_wallet(wallet, amount):
+    wallet.balance += amount
+    wallet.save()
+    return wallet
+
+def create_transaction(wallet, payload):
+    
+    transaction =Transaction.objects.create(
+        wallet=wallet,
+        amount=payload['amount'],
+        status=Transaction.Status.SUCCESS,
+        transaction_type=Transaction.Type.DEPOSIT,
+        provider_reference=payload['provider_reference'],
+        description=f"₦{payload['amount']} - Deposit " 
+    )
+    return transaction
+
+
+def record_processed_deposit(payload):
+
+    # validation 
+    wallet, payload = validate_deposit(payload)
+
     with transaction.atomic():
-        deposit_transaction = Transaction.objects.create(
-            wallet=wallet,
-            amount=amount,
-            transaction_type=Transaction.Type.DEPOSIT,
-        )
+        amount = payload['amount']
+        wallet = credit_wallet(wallet, amount)
+        create_transaction(wallet, payload)
 
-        payment = initialize_payment(
-            deposit_transaction
-        )
-        
-        
-        deposit_transaction.payment_url = payment["payment_url"]
-        deposit_transaction.provider_reference = payment["provider_reference"]
-
-        deposit_transaction.save()
-
-        return payment["payment_url"]
-
-
-        
-def complete_deposit(payment_transaction):
-    with transaction.atomic(): 
-        try: 
-            locked_transaction = (
-                Transaction.objects
-                .select_for_update()
-                .get(id=payment_transaction.id)
-            )
-
-            wallet = locked_transaction.wallet
-            
-            if locked_transaction.status == Transaction.Status.SUCCESS:
-                logger.warning(
-                    "completed transaction happen by %s",
-                    locked_transaction.wallet.user.id
-                )
-                raise DepositAlreadyCompletedError("Transaction succeed Error.")
-            
-            wallet.balance += locked_transaction.amount
-            
-            locked_transaction.status = Transaction.Status.SUCCESS
-
-            wallet.save()
-            locked_transaction.save()
-
-            return locked_transaction
-
-            
-        except Transaction.DoesNotExist:
-            raise DepositNotFound("Traction Not Found Error.")
-        
-
+        return {
+            "message" : "SUCCESS"
+        }
 
