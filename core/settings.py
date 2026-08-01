@@ -39,6 +39,10 @@ DATABASES={
 # Default currency
 DEFAULT_CURRENCY = "NGN"
 
+# PairGate provider :
+PAIRGATE_SECRETE_KEY = env('PAIGATE_SECRETE_KEY')  
+PAIRGATE_BASE_URL = env('PAIRGATE_BASE_URL')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/

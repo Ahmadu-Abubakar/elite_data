@@ -13,17 +13,17 @@ class BaseProvider(ABC):
         """Fetch products from supplier."""
         pass
 
-    @abstractmethod
-    def purchase_data(self, payload):
-        """Purchase data."""
-        pass
+    # @abstractmethod
+    # def purchase_data(self, payload):
+    #     """Purchase data."""
+    #     pass
 
-    @abstractmethod
-    def purchase_airtime(self, payload):
-        """Purchase airtime."""
-        pass
+    # @abstractmethod
+    # def purchase_airtime(self, payload):
+    #     """Purchase airtime."""
+    #     pass
 
-    @abstractmethod
-    def transaction_status(self, provider_reference):
-        """Check supplier transaction status."""
-        pass
+    # @abstractmethod
+    # def transaction_status(self, provider_reference):
+    #     """Check supplier transaction status."""
+    #     pass
