@@ -40,7 +40,7 @@ DATABASES={
 DEFAULT_CURRENCY = "NGN"
 
 # PairGate provider :
-PAIRGATE_SECRETE_KEY = env('PAIGATE_SECRETE_KEY')  
+PAIRGATE_SECRET_KEY = env('PAIRGATE_SECRET_KEY')  
 PAIRGATE_BASE_URL = env('PAIRGATE_BASE_URL')
 
 
@@ -67,12 +67,18 @@ REST_FRAMEWORK = {
 
     "DEFAULT_AUTHENTICATION_CLASSES": [
 
-        "accounts.authentication.JWTAuthentication"
+        "accounts.authentication.JWTAuthentication",
 
     ],
+
+     "EXCEPTION_HANDLER":
+            "accounts.exception_handler.custom_exception_handler",
+            
     "DEFAULT_PERMISSION_CLASSES": [
          'rest_framework.permissions.IsAuthenticated',
-    ]
+    ], 
+
+
 }
 
 INSTALLED_APPS = [
@@ -89,6 +95,7 @@ INSTALLED_APPS = [
     'accounts',
     'wallet',
     'transactions',
+    'catalog',
 
     # connection to frontend
     "corsheaders",
@@ -104,6 +111,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # connection ______
+    "django.middleware.common.CommonMiddleware",
     "corsheaders.middleware.CorsMiddleware",
 ]
 

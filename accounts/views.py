@@ -14,7 +14,7 @@ from .services import (
     send_verification_email,
     login_user,
     )
-from . services import (
+from .exception_handler import (
     InvalidCredentialsError,
     EmailNotVerifiedError
 )
@@ -24,11 +24,9 @@ from .token_service import (
     refresh_access_token,
     InvalidTokenError
 )
-from rest_framework.views import APIView
+
 import jwt
 from django.conf import settings
-
-
 
 
 class RegisterView(APIView):
@@ -49,6 +47,7 @@ class RegisterView(APIView):
         token = generate_email_verification_token(
             user
         )
+        
 
         send_verification_email(
             user,
@@ -118,17 +117,20 @@ class LoginView(APIView):
         
         except InvalidCredentialsError as e:
             return Response ({
+                "success" : False,
                 "message" : str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
         
         except EmailNotVerifiedError as e:
             return Response ({
+                "success" : False,
                 "message" : str(e)
             }, status=status.HTTP_403_FORBIDDEN)
         
 
         response =  Response (
             {
+                "success" : True,
                 "access_token" : result["access_token"],
                 "user" : result["user"]
             },

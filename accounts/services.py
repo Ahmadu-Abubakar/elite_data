@@ -3,23 +3,11 @@ from .models import User
 import logging
 from core.email_service import send_email
 from . token_service import generate_access_token, generate_refresh_token
+from .exception_handler import *
 
 logger = logging.getLogger(__name__)
     
 
-# Custom Exception___________
-class AuthError(Exception):
-    """Base exception for all authentication and authorization issues."""
-    pass
-
-class InvalidCredentialsError(AuthError):
-    """Raised when the provided username or password is incorrect."""
-    pass
-
-class EmailNotVerifiedError(AuthError):
-    def __init__(self, message="Email address has not been verified.", email=None):
-        super().__init__(message)
-        self.email = email 
 
 # authenticate user___________
 

@@ -6,6 +6,8 @@ from wallet.services import create_wallet
 from django.db import transaction
 
 
+from django.core.exceptions import ValidationError as DjangoValidationError
+
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -34,8 +36,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_password(self, value):
-        validate_password(value)
+
+        try:
+            validate_password(value) 
+        except DjangoValidationError as e:
+            # Convert Django validation error to DRF validation error
+            raise serializers.ValidationError(list(e.messages))
         return value
+
 
     def create(self, validated_data):
 
