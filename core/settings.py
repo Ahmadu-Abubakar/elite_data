@@ -96,6 +96,7 @@ INSTALLED_APPS = [
     'wallet',
     'transactions',
     'catalog',
+    'background_worker',
 
     # connection to frontend
     "corsheaders",

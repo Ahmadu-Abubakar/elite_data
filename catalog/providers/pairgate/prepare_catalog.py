@@ -16,7 +16,10 @@ def prepare_catalog():
             "price"  : str(product["selling_price"]),
             "validity"  : product["duration"],
             "duration_category" : product["duration_category"],
-            "plan_type_category" : product["plan_type_category"]
+            "plan_type_category" : product["plan_type_category"],
+            "margin"  : str(product["margin"]),
+            "supplier_price" : product["provider_price"]
+
         })
 
     return products

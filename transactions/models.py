@@ -11,13 +11,13 @@ class Transaction(models.Model):
         FAILED = "FAILED" , "failure"
         
     class Type(models.TextChoices):
-        DEPOSIT = "DEPOSIT" , "deposit", 
+        DEPOSIT = "DEPOSIT" , "deposit" 
         BUY_DATA = "BUY_DATA", "data plan"
         BUY_AIRTIME = "BUY_AIRTIME", "airtime"
 
 
     class TelecomProviders(models.TextChoices):
-        MTN = "MTN" , "mtn network", 
+        MTN = "MTN" , "mtn network"
         AIRTEL = "AIRTEL", "airtel network"
         GLO = "GLO", "glo network"
         NINE_MOBILE = "9MOBIL", "9mobile network"
