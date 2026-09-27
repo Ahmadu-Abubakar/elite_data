@@ -3,11 +3,13 @@ import re
 from .fetch_product import collect_products
 
 
-def structured_products():
+def structured_products(discoveries):
     products = {}
     seen_ids = {}
 
-    for item in collect_products():
+    products_list, missing_track = collect_products(discoveries)
+
+    for item in products_list:
 
         provider = item["discovery"]["provider_name"]
         plan_type = item["discovery"]["plan_type"]
@@ -42,7 +44,7 @@ def structured_products():
             products[provider][plan_type].append(plan)
             seen_ids[provider][plan_type].add(plan_id)
 
-    return products
+    return products, missing_track
 
 
 
@@ -67,13 +69,14 @@ def normalize_product_name(name):
 
     return normalized
 
-def translate_products():
+def translate_products(discoveries):
     # elite data products bucket
     products_list=[]
-    data = structured_products()
+    
 
+    structured_data, missing_tracks = structured_products(discoveries)  
 
-    for provider_name, plan in data.items():
+    for provider_name, plan in structured_data.items():
         
 
         for plan_type, products in plan.items():
@@ -93,7 +96,10 @@ def translate_products():
                     "provider_name": provider_name,
                 })
 
-    return products_list
+    return products_list, missing_tracks
+
+
+
 
 
 

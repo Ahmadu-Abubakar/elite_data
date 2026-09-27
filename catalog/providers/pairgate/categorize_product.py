@@ -1,11 +1,11 @@
 from .translate_product import translate_products
 
 
-def categorize_products():
+def categorize_products(products):
     # collect the data
-
-    data = translate_products()
-
+       
+    data, missing_data = translate_products(products)
+    
 
     # social keyword 
     SOCIAL_KEYWORDS = ["social", "whatsapp", "facebook", "instagram", "tiktok", "youtube"]
@@ -46,5 +46,5 @@ def categorize_products():
         else :
             product["duration_category"] = "Long_term"
 
-    return data
+    return data, missing_data
 

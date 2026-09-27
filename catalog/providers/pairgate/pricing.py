@@ -30,15 +30,15 @@ def hybrid_strategy(price):
     } 
 
 # the pricing worker
-def pricing():
-
-    products = categorize_products()
+def pricing(product_list):
+    products, missing_products = categorize_products(product_list)
 
     for product in products:
         price = hybrid_strategy(product["provider_price"])
         product["margin"] = price["margin"]
         product["selling_price"] = price["selling_price"]
 
-    return products
+    return products, missing_products
+
 
 

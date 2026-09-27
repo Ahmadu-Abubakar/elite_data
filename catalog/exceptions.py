@@ -26,6 +26,14 @@ class ProviderDataValidationError(BaseProviderException):
     """Raised when the API returns invalid data format or missing required keys."""
     pass
 
+class ProviderTimeoutError(BaseProviderException):
+    """Raise when timeout and the request haven't succeeded yet!."""
+    pass
+
+class ProviderRatelimitingError(BaseProviderException):
+    """Raise when 429 too much request and the request haven't succeeded yet!."""
+    pass
+
 
 class ProviderAuthenticationError(BaseProviderException):
     """Raised specifically for 401 Unauthorized or 403 Forbidden issues."""
@@ -46,3 +54,5 @@ class ProviderEmptyResponse(BaseProviderException):
 class ProviderDataValidationError(BaseProviderException):
     """Raised when Supplier change their language"""
     pass
+
+

@@ -17,9 +17,8 @@ class Catalog(models.Model):
         max_length=255
     ) 
 
-    amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2
+    amount = models.CharField(
+        max_length=50
     )
 
     price = models.DecimalField(
@@ -56,5 +55,16 @@ class Catalog(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+    class Meta:
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["provider", "provider_plan_id"],
+                name = "unique_provider_plan"
+            )
+        ]
+
 
 # Create your models here.

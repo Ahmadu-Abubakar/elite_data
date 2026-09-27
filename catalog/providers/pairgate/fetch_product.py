@@ -34,11 +34,16 @@ def fetch(discovery):
                     "Invalid PairGate API key or unauthorized access "
                 )
 
+            if response.status_code == 429 :
+                raise ProviderRatelimitingError (
+                    "Too much request, Rate limiting "
+                )
+
             response.raise_for_status()
            
 
         except requests.exceptions.Timeout as e:
-            raise ProviderNetworkError(
+            raise ProviderTimeoutError(
                 'The request to PairGate timed out. '
             )  from e
         except requests.exceptions.ConnectionError:
@@ -74,10 +79,11 @@ def fetch(discovery):
         return data
 
 
-def collect_products():
-    discoveries = discover_available_products()
+def collect_products(discoveries):
     
     raw_catalog = []
+
+    failed_tracks = []
     
     for discovery in discoveries:
         try:
@@ -91,9 +97,68 @@ def collect_products():
                 },
                 "products": api_response
             })
-        except (ProviderNetworkError, ProviderHTTPError, ProviderDataValidationError) as e:
+        except ProviderTimeoutError as e:
             logger.error(f"Failed to fetch data for {discovery['provider_name']} - {discovery['plan_type']}: {e}")
-            continue
 
-    return raw_catalog
+            failed_tracks.append({
+                "provider_id" : discovery["provider_id"],
+                "provider_name" : discovery["provider_name"],
+                "plan_type":discovery["plan_type"],
+                "service_type" : discovery["service_type"],
+                "failure"  : "TIMEOUT",
+                "status_code": None,
+                "information"  : "provider's timeout "
+            })
+
+        except ProviderRatelimitingError as e:
+            logger.error(f"Failed to fetch data for {discovery['provider_name']} - {discovery['plan_type']}: {e}")
+
+
+            failed_tracks.append({
+                "provider_id" : discovery["provider_id"],
+                "provider_name" : discovery["provider_name"],
+                "plan_type":discovery["plan_type"],
+                "service_type" : discovery["service_type"],
+                "failure"  : {
+                    "type" : "RATE_LIMITING",
+                    "status_code" : 429,
+                    "information" : "provider rate liming request"
+                }
+            })
+
+
+
+        except ProviderAuthenticationError as e :
+            logger.debug(f"{e} : provider api key issue ")
+
+            failed_tracks.append({
+                "provider_id" : discovery["provider_id"],
+                "provider_name" : discovery["provider_name"],
+                "plan_type":discovery["plan_type"],
+                "service_type" : discovery["service_type"],
+                "failure" : {
+                    "type" : "AUTHENTICATION_ERROR",
+                    "status_code" : (401, 403),
+                    "information" : "invalid Api key"
+                }
+            })
+
+
+        except ( ProviderNetworkError, ProviderHTTPError, ProviderDataValidationError)  as e :
+            logger.error(f"Failed to fetch data for {discovery['provider_name']} - {discovery['plan_type']}: {e}")
+
+            failed_tracks.append({
+                "provider_id" : discovery["provider_id"],
+                "provider_name" : discovery["provider_name"],
+                "plan_type":discovery["plan_type"],
+                "service_type" : discovery["service_type"],
+                "failure" : {
+                    "type" : "SERVER_ERROR",
+                    "status_code" : (500,501,502,503),
+                    "information" : "external server conflict"
+                }
+            })
+            
+    return raw_catalog, failed_tracks
+
 
