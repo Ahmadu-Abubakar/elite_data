@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'transactions',
     'catalog',
     'background_worker',
+    "monitoring",
 
     # connection to frontend
     "corsheaders",

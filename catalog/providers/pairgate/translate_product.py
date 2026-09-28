@@ -7,7 +7,7 @@ def structured_products(discoveries):
     products = {}
     seen_ids = {}
 
-    products_list, missing_track = collect_products(discoveries)
+    products_list, failed_tracks = collect_products(discoveries)
 
     for item in products_list:
 
@@ -44,7 +44,7 @@ def structured_products(discoveries):
             products[provider][plan_type].append(plan)
             seen_ids[provider][plan_type].add(plan_id)
 
-    return products, missing_track
+    return products, failed_tracks
 
 
 
@@ -74,7 +74,7 @@ def translate_products(discoveries):
     products_list=[]
     
 
-    structured_data, missing_tracks = structured_products(discoveries)  
+    structured_data, failed_tracks = structured_products(discoveries)  
 
     for provider_name, plan in structured_data.items():
         
@@ -96,7 +96,7 @@ def translate_products(discoveries):
                     "provider_name": provider_name,
                 })
 
-    return products_list, missing_tracks
+    return products_list, failed_tracks
 
 
 
