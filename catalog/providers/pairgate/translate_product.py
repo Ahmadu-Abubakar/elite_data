@@ -1,7 +1,8 @@
 import re
-
 from .fetch_product import collect_products
-
+from monitoring.services import Monitoring
+from monitoring.models import Alert
+from validator import is_positive_decimal, is_string_valid, is_positive_integer
 
 def structured_products(discoveries):
     products = {}
@@ -14,9 +15,53 @@ def structured_products(discoveries):
         provider = item["discovery"]["provider_name"]
         plan_type = item["discovery"]["plan_type"]
 
+        if not provider:
+            Monitoring.alert(
+                alert_type=Alert.Type.PROVIDER_RESPONSE_UNEXPECTED,
+                description="A provider is missing"
+            )
+            failed_tracks.append(item)
+            continue
+
         product_payload = item["products"]
+
+        if not product_payload:
+            failed_tracks.append(item)
+            Monitoring.alert(
+                alert_type=Alert.Type.PROVIDER_RESPONSE_UNEXPECTED,
+                description="provider returned Empty data set"
+            )
+            continue
+            
+
+        if not isinstance(product_payload, dict):
+            Monitoring.alert(
+                alert_type=Alert.Type.PROVIDER_RESPONSE_UNEXPECTED,
+                description="product type not a dictionary"
+            )
+            failed_tracks.append(item)
+            continue
+            
+
         product_content = product_payload.get("data", {})
+        if not isinstance(product_content, dict):
+            Monitoring.alert(
+                alert_type=Alert.Type.PROVIDER_CONTRACT_CHANGED,
+                description="expect dictionary "
+            )
+            failed_tracks.append(item)
+            continue
         provider_plans = product_content.get(provider, [])
+
+        if not isinstance(provider_plans, list):
+            Monitoring.alert(
+                alert_type=Alert.Type.PROVIDER_RESPONSE_UNEXPECTED,
+                description="providers plan changed from  expected contract"
+            )
+            failed_tracks.append(item)
+            continue
+
+
 
         # Create provider bucket
         if provider not in products:
@@ -36,7 +81,22 @@ def structured_products(discoveries):
         # Add unique products
         for plan in provider_plans:
 
+            if not plan or not isinstance(plan, dict):
+                Monitoring.alert(
+                    alert_type=Alert.Type.PROVIDER_RESPONSE_UNEXPECTED,
+                    description=f"unexpected plan type"
+                )
+                failed_tracks.append(plan)
+                continue
+
             plan_id = plan["plan_id"]
+            if not plan_id:
+                Monitoring.alert(
+                    alert_type=Alert.Type.PROVIDER_RESPONSE_UNEXPECTED,
+                    description="invalid plan",
+                )
+                failed_tracks.append(plan)
+                continue
 
             if plan_id in seen_ids[provider][plan_type]:
                 continue
@@ -55,7 +115,7 @@ AMOUNT_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
-# normalizing amoubt
+# normalizing amount
 def normalize_product_name(name):
     normalized = {
         "amount": None,
@@ -68,6 +128,17 @@ def normalize_product_name(name):
         )
 
     return normalized
+
+
+
+# perform monitoring documentation
+def record_monitoring(product):
+    Monitoring.alert(
+        alert_type=Alert.Type.PROVIDER_RESPONSE_UNEXPECTED,
+        description=f"provider's expected contract change -> {product['name']}",
+    )
+
+    
 
 def translate_products(discoveries):
     # elite data products bucket
@@ -83,8 +154,35 @@ def translate_products(discoveries):
 
 
             for product in products:
+                expected_keys = ["plan_id", "name", "price", "duration"]
+            
+                
+                if not all(key in product for key in expected_keys):
+                    Monitoring.alert(
+                        alert_type=Alert.Type.PROVIDER_CONTRACT_CHANGED,
+                        description="providers response unexpectedly.",
+                        severity=Alert.Severity.CRITICAL
+                    )
+                    continue
 
-                normalized_name = normalize_product_name(product["name"])
+
+                if not is_string_valid(product["name"]):
+                    record_monitoring(product)
+                    normalized_name = normalize_product_name(product["name"])
+                    continue
+
+                if not is_string_valid(product["plan_id"]):
+                    record_monitoring(product)
+                    continue
+
+                if not is_positive_decimal(product["price"]):
+                    record_monitoring(product)
+                    continue
+
+                if not is_positive_integer(product["duration"]):
+                    record_monitoring(product)
+                    continue
+
 
                 products_list.append({
                     "supplier_name" : product["name"] ,
@@ -100,7 +198,3 @@ def translate_products(discoveries):
 
 
 
-
-
-
-   
