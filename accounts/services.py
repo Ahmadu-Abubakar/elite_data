@@ -53,18 +53,6 @@ def send_verification_email(user, token):
         f"{verification_url}\n\n"
         "If you did not create this account, ignore this email."
     )
-        
-    print("TOKEN:")
-    print(repr(token))
-
-    print("URL:")
-    print(repr(verification_url))
-
-    logger.info(
-        "Verification URL: %s",
-        verification_url
-    )
-    
     send_email(
         recipient=user.email,
         subject=subject,
@@ -76,6 +64,10 @@ def send_verification_email(user, token):
 # logging-in user____________
 def login_user(email, password):
     user = authenticate_user(email, password)
+
+    if not user.is_active:
+        logger.warning("Invalid user trying to login !.")
+        raise AuthError("authentication failed.")
 
     access_token = generate_access_token(user)
     refresh_token = generate_refresh_token(user)

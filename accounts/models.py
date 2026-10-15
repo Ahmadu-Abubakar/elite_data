@@ -30,3 +30,45 @@ class Profile(models.Model):
         upload_to="profile_pics/", blank=True, null=True
     )
 
+
+
+
+class OTP(models.Model):
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "pending"
+        ACTIVE  = "ACTIVE", "active"
+        CONSUMED = "CONSUMED", "consumed"
+        INVALIDATED = "INVALIDATED", "invalidated"
+
+    class Purpose(models.TextChoices):
+        EMAIL = "EMAIL", "email_verification"
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="otp_code"
+    )
+    email = models.EmailField()
+
+    purpose = models.CharField(
+        max_length=20,
+        choices=Purpose.choices
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING
+    )
+
+    otp_code = models.BinaryField()
+
+    attempts_remaining = models.IntegerField(default=5)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    expired_at = models.DateTimeField(null=True, blank=True)
+    consumed_at = models.DateTimeField(null=True, blank=True)
+
+
+

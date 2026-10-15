@@ -4,8 +4,7 @@ from .models import User
 from rest_framework.views import APIView
 from .serializers import (
     RegisterSerializer,
-    LoginSerializer,
-    RefreshTokenSerializer
+    LoginSerializer
 )
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
@@ -142,9 +141,11 @@ class LoginView(APIView):
             key="refresh_token",
             value=result["refresh_token"],
             httponly=True,
-            secure=settings.DEBUG,
-            samesite="lax",
+            secure=settings.DEBUG, 
+            # secure=not settings.DEBUG, i'll change when i host the frontend
+            samesite="lax", #"strict"
             max_age=settings.REFRESH_COOKIE_MAX_AGE,
+            path="/api/accounts/refresh/"
         )
 
         return response
@@ -155,14 +156,16 @@ class RefreshTokenView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
     def post(self, request):
-        serializer = RefreshTokenSerializer(data=request.data)
+        token = request.COOKIES.get("refresh_token")
 
-        serializer.is_valid(
-            raise_exception=True
-        )
-
-        token = serializer.validated_data["refresh_token"]
-         
+        if not token:
+            return Response(
+                {
+                    "details" : "Refresh token cookies is missing"
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
         try:
             token_data = refresh_access_token(token)
         except InvalidTokenError as e:

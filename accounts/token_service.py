@@ -75,10 +75,6 @@ def generate_refresh_token(user):
 
 
 
-
-
-
-
 # decoding JWT token
 
 def decode_token(token, purpose):

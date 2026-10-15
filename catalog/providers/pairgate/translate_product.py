@@ -2,7 +2,7 @@ import re
 from .fetch_product import collect_products
 from monitoring.services import Monitoring
 from monitoring.models import Alert
-from validator import is_positive_decimal, is_string_valid, is_positive_integer
+from .validator import is_positive_decimal, is_string_valid, is_positive_integer
 
 def structured_products(discoveries):
     products = {}
@@ -168,8 +168,8 @@ def translate_products(discoveries):
 
                 if not is_string_valid(product["name"]):
                     record_monitoring(product)
-                    normalized_name = normalize_product_name(product["name"])
                     continue
+                normalized_name = normalize_product_name(product["name"])
 
                 if not is_string_valid(product["plan_id"]):
                     record_monitoring(product)
