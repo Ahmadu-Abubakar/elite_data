@@ -42,7 +42,7 @@ class OTP(models.Model):
         INVALIDATED = "INVALIDATED", "invalidated"
 
     class Purpose(models.TextChoices):
-        EMAIL = "EMAIL", "email_verification"
+        EMAIL = "email_verification", "email_verification"
 
     user = models.ForeignKey(
         User,
@@ -62,13 +62,13 @@ class OTP(models.Model):
         default=Status.PENDING
     )
 
-    otp_code = models.BinaryField()
+    otp_hash = models.BinaryField()
 
-    attempts_remaining = models.IntegerField(default=5)
+    attempts_remaining = models.PositiveIntegerField(default=5)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    expired_at = models.DateTimeField(null=True, blank=True)
-    consumed_at = models.DateTimeField(null=True, blank=True)
+    expired_at = models.BigIntegerField(null=True)
+    consumed_at = models.DateTimeField(null=True)
 
 
 

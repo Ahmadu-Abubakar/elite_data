@@ -52,8 +52,6 @@ PAIRGATE_BASE_URL = env('PAIRGATE_BASE_URL')
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 
-
-
 AUTH_USER_MODEL = 'accounts.User'
 
 ALLOWED_HOSTS = []
@@ -102,6 +100,7 @@ INSTALLED_APPS = [
     'catalog',
     'background_worker',
     "monitoring",
+    "notifications",
 
     # connection to frontend
     "corsheaders",
