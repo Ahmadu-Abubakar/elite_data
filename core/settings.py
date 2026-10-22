@@ -193,10 +193,7 @@ EMAIL_VERIFICATION_TOKEN_LIFETIME_HOURS = 24
 REFRESH_COOKIE_MAX_AGE = 60 * 60 * 24 * 30
 
 # Email Settings
-
-EMAIL_BACKEND = (
-    "django.core.mail.backends.console.EmailBackend"
-)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DEFAULT_FROM_EMAIL = "noreply@elitedata.local"
 
